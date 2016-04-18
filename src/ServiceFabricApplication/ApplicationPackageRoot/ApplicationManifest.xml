@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="ServiceFabricApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+   <Parameters>
+      <Parameter Name="MeterSimulatorActorService_PartitionCount" DefaultValue="10" />
+      <Parameter Name="MeterSimulatorActorService_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="MeterSimulatorActorService_TargetReplicaSetSize" DefaultValue="3" />
+      <Parameter Name="BooterActorService_PartitionCount" DefaultValue="10" />
+      <Parameter Name="BooterActorService_MinReplicaSetSize" DefaultValue="2" />
+      <Parameter Name="BooterActorService_TargetReplicaSetSize" DefaultValue="3" />
+   </Parameters>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="BooterActorPkg" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="MeterSimulatorActorPkg" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <ServiceManifestImport>
+      <ServiceManifestRef ServiceManifestName="ServiceFabricWeb" ServiceManifestVersion="1.0.0" />
+   </ServiceManifestImport>
+   <DefaultServices>
+      <Service Name="MeterSimulatorActorService" GeneratedIdRef="b0ed5710-e351-4a37-9d82-4fb3ddcc72e9">
+         <StatefulService ServiceTypeName="MeterSimulatorActorServiceType" TargetReplicaSetSize="[MeterSimulatorActorService_TargetReplicaSetSize]" MinReplicaSetSize="[MeterSimulatorActorService_MinReplicaSetSize]">
+            <UniformInt64Partition PartitionCount="[MeterSimulatorActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+         </StatefulService>
+      </Service>
+      <Service Name="ServiceFabricWebService">
+         <StatelessService ServiceTypeName="ServiceFabricWebType">
+            <SingletonPartition />
+         </StatelessService>
+      </Service>
+      <Service Name="BooterActorService" GeneratedIdRef="82243d0f-8ddb-4997-b162-53ca0822364e">
+         <StatefulService ServiceTypeName="BooterActorServiceType" TargetReplicaSetSize="[BooterActorService_TargetReplicaSetSize]" MinReplicaSetSize="[BooterActorService_MinReplicaSetSize]">
+            <UniformInt64Partition PartitionCount="[BooterActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+         </StatefulService>
+      </Service>
+   </DefaultServices>
+</ApplicationManifest>

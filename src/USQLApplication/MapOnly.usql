@@ -1,0 +1,41 @@
+﻿REFERENCE ASSEMBLY [Newtonsoft.Json];
+REFERENCE ASSEMBLY [Microsoft.Analytics.Samples.Formats];
+
+DECLARE @source string = "wasb://meterdata@torstore/{*}.json";
+DECLARE @machinelearningoutput string = "wasb://meterdata@torstore/ConsumptionFeatures.csv";
+DECLARE @countedoutput string = "wasb://meterdata@torstore/CountedOutput.csv";
+DECLARE @mapoutput string = "wasb://meterdata@torstore/MapOutput.csv";
+
+@lines =
+    EXTRACT jsonString string
+    FROM @source
+    USING Extractors.Text(delimiter : '\b', quoting : false);
+
+@jsonify =
+    SELECT Microsoft.Analytics.Samples.Formats.Json.JsonFunctions.JsonTuple(jsonString) AS rec
+    FROM @lines;
+
+@consumptionlog =
+    SELECT DateTime.Parse(rec["time"]).ToUniversalTime() AS Time,
+           rec["lat"] AS lat,
+           rec["lon"] AS lon,
+           rec["consumptionfactor"] AS consumptionfactor,
+           rec["hourlyconsumption"] AS hourlyconsumption
+    FROM @jsonify;
+
+@mapdata =
+    SELECT 
+        Lat + ", " + Lon AS Position, 
+        SUM(HourlyConsumption) AS SumConsumption
+    FROM (
+        SELECT 
+            double.Parse(lat) AS Lat,
+            double.Parse(lon) AS Lon,
+            double.Parse(hourlyconsumption) AS HourlyConsumption
+        FROM @consumptionlog
+        WHERE !string.IsNullOrEmpty(hourlyconsumption)) AS Temp
+    GROUP BY Lat, Lon;
+
+OUTPUT @mapdata
+TO @mapoutput
+USING Outputters.Csv();

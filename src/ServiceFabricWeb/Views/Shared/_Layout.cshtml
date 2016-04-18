@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="dns-prefetch" href="//ajax.googleapis.com">
+    <title>@ViewData["Title"] - ServiceFabricWeb</title>
+    <!-- powel-ui-head.min.js inlined -->
+    <script>!function(e){"use strict";function t(t,n,a){var o=navigator.userAgent,s=!e.addEventListener||o.match(/(Android (2|3|4.0|4.1|4.2|4.3))|(Opera (Mini|Mobi))/)&&!o.match(/Chrome/);if(!s){var r={};try{r=localStorage||{}}catch(c){}var i="x-font-"+t,u=i+"url",f=i+"css",l=r[u],d=r[f],m=document.createElement("style");if(m.rel="stylesheet",document.head.appendChild(m),d&&l===n)m.textContent=d;else{var h=new XMLHttpRequest;h.open("GET",n),h.onload=function(){h.status>=200&&h.status<400&&(r[u]=n,r[f]=h.responseText,a||(m.textContent=h.responseText))},h.send()}}}function n(t){for(var n,a=e.document.getElementsByTagName("meta"),o=0;o<a.length;o++)if(a[o].name&&a[o].name==t){n=a[o];break}return n}var a=n("fontsCSS");t("OpenSans",a?a.content:"/css/powel-ui-webfonts.woff.css")}(this);</script>
+    <link rel="stylesheet" href="~/css/powel-ui.min.css">
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+<header class="fixed fill-navy100 w100 headerBar">
+    <img class="posA" src="~/images/powel-logo.png" alt="Powel logo" height="50">
+        <h1 class="headerBar-appTitle">Meter simulator actor booter</h1>
+</header>
+
+<div class="wrap-large" id="content">
+    @RenderBody()
+</div>
+
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/powel-ui.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+
+        @RenderSection("scripts", required: false)
+</body>
+</html>

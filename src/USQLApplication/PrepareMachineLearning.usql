@@ -1,0 +1,65 @@
+﻿REFERENCE ASSEMBLY [Newtonsoft.Json];
+REFERENCE ASSEMBLY [Microsoft.Analytics.Samples.Formats];
+
+DECLARE @source string = "wasb://meterdata@torstore/{*}.json";
+DECLARE @machinelearningoutput string = "wasb://meterdata@torstore/ConsumptionFeatures.csv";
+DECLARE @countedoutput string = "wasb://meterdata@torstore/CountedOutput.csv";
+DECLARE @mapoutput string = "wasb://meterdata@torstore/MapOutput.csv";
+
+@lines =
+    EXTRACT jsonString string
+    FROM @source
+    USING Extractors.Text(delimiter : '\b', quoting : false);
+
+@jsonify =
+    SELECT Microsoft.Analytics.Samples.Formats.Json.JsonFunctions.JsonTuple(jsonString) AS rec
+    FROM @lines;
+
+@consumptionlog =
+    SELECT DateTime.Parse(rec["time"]).ToUniversalTime() AS Time,
+           double.Parse(rec["lat"]) AS Lat,
+           double.Parse(rec["lon"]) AS Lon,
+           double.Parse(rec["consumptionfactor"]) AS ConsumptionFactor,
+           double.Parse(rec["hourlyconsumption"]) AS HourlyConsumption
+    FROM @jsonify
+    WHERE !string.IsNullOrEmpty(rec["hourlyconsumption"]);
+
+@machinelearningdata =
+    SELECT Time,
+           Time.DayOfYear AS DayOfYear,
+           Time.TimeOfDay.TotalSeconds AS TimeOfDay,
+           ConsumptionFactor, HourlyConsumption
+    FROM @consumptionlog;
+
+OUTPUT @machinelearningdata
+TO @machinelearningoutput
+USING Outputters.Csv();
+
+@counteddata =
+    SELECT 
+        new DateTime(Minutes * 60 * 1000 * 10000) AS Time, 
+        COUNT(*) AS MeterCount, 
+        AVG(HourlyConsumption) AS AverageConsumption
+    FROM (
+        SELECT 
+            Time.Ticks / 10000 / 1000 / 60 AS Minutes, 
+            HourlyConsumption
+        FROM @consumptionlog) 
+        AS Temp
+    GROUP BY Minutes;
+
+OUTPUT @counteddata
+TO @countedoutput
+USING Outputters.Csv();
+
+@mapdata =
+    SELECT 
+        Lat, Lon, 
+        SUM(HourlyConsumption) AS SumConsumption
+    FROM @consumptionlog
+    GROUP BY Lat, Lon;
+
+OUTPUT @mapdata
+TO @mapoutput
+USING Outputters.Csv();
+        

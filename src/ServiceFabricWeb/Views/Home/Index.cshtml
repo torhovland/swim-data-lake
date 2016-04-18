@@ -1,0 +1,23 @@
+﻿@model ServiceFabricWeb.Models.ActorBoot
+
+@{
+    ViewData["Title"] = "Meter simulator actor booter";
+}
+@using (Html.BeginForm())
+{
+    <h2>Boot actors</h2>
+    <div>Enter number of actors to boot.</div>
+    @Html.EditorFor(model => model.NumberOfActors);
+    <div class="btnGroup dB mTs">
+        <div class="btnGroup-item">
+            <button class="btn btn--small fill-green100" type="submit" name="button" value="boot"><i class="pf pf-check" aria-hidden="true"></i> Boot actors</button>
+        </div>
+        <div class="btnGroup-item">
+            <button class="btn btn--small fill-red100" type="submit" name="button" value="stop"><i class="pf pf-delete" aria-hidden="true"></i> Stop all actors</button>
+        </div>
+    </div>
+
+    <h2>Status</h2>
+    @Html.DisplayFor(model => model.Message)
+
+}

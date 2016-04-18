@@ -1,0 +1,44 @@
+﻿<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', { 'packages': ['corechart'] });
+
+      function drawChart() {
+          var value = $("#value").val();
+
+          var jsonDataShort = $.ajax({
+              url: "../api/chart/" + value + "?type=short",
+              dataType: "json",
+              async: false
+          }).responseText;
+
+          var jsonDataLong = $.ajax({
+              url: "../api/chart/" + value + "?type=long",
+              dataType: "json",
+              async: false
+          }).responseText;
+
+          var dataShort = new google.visualization.DataTable(jsonDataShort);
+          var dataLong = new google.visualization.DataTable(jsonDataLong);
+
+        var options = {
+          title: 'Meter data',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chartShort = new google.visualization.LineChart(document.getElementById('curve_chart_short'));
+        var chartLong = new google.visualization.LineChart(document.getElementById('curve_chart_long'));
+
+        chartShort.draw(dataShort, options);
+        chartLong.draw(dataLong, options);
+    }
+</script>
+@{
+    ViewData["Title"] = "Machine learning";
+}
+<h2>@ViewData["Title"].</h2>
+<input type="number" id="value"/>
+<input type="button" value="Show" onclick="drawChart();" />
+<div id="curve_chart_short" style="width: 1200px; height: 500px"></div>
+<div id="curve_chart_long" style="width: 1200px; height: 500px"></div>
